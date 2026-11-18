@@ -3,8 +3,8 @@
 // uppgiftstyper i nästa steg.
 window.CALENDAR_CONTENT = {
   lagstadiet: {
-    title: "Mattejulkalender – lågstadiet",
-    description: "24 kluriga matteuppdrag för årskurs 1–3.",
+    title: "Mattejulkalender – F–3",
+    description: "24 kluriga matteuppdrag för förskoleklass–årskurs 3.",
     doors: Array.from({length:24}, (_,i) => ({
       title: "Dagens matteuppdrag",
       paragraphs: [`Här kommer matteuppdraget för lucka ${i+1}.`, "Uppdraget fylls på tillsammans med Johanna."]
