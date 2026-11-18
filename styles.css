@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap');
 :root{--ink:#183b59;--blue:#245b83;--snow:#f6f9fb;--gold:#e8c77e;--red:#a84442}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:var(--ink);font-family:'DM Sans',sans-serif;background:radial-gradient(ellipse at 15% 10%,#fff 0,transparent 38%),linear-gradient(145deg,#e8f1f6,#f8f7f1 58%,#e5edf2)}
-.site-header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,6vw,80px);border-bottom:1px solid #cbd9e2aa;background:#ffffff80}
-.brand{color:var(--ink);text-decoration:none;font-weight:700;letter-spacing:.02em}.brand span{font-weight:400}.header-sparkle{font-size:25px;color:#b68e45}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:'DM Sans',sans-serif;background:radial-gradient(circle at 12% 18%,#ffffffd9 0 2px,transparent 3px),radial-gradient(circle at 82% 12%,#ffffffd9 0 3px,transparent 4px),radial-gradient(circle at 72% 62%,#ffffffb8 0 2px,transparent 3px),radial-gradient(circle at 24% 78%,#ffffffc9 0 3px,transparent 4px),radial-gradient(ellipse at 15% 10%,#fff 0,transparent 38%),linear-gradient(145deg,#dcecf6,#f7fbfd 54%,#d7e8f2);background-size:190px 190px,230px 230px,170px 170px,250px 250px,auto,auto;background-attachment:fixed}
+.site-header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,6vw,80px);border-bottom:1px solid #cbdfea;background:#f8fcffe0;backdrop-filter:blur(10px);box-shadow:0 4px 18px #315b7510}
+.brand{color:var(--ink);text-decoration:none;font-weight:700;letter-spacing:.02em}.brand span{font-weight:400}.header-sparkle{font-size:25px;color:#7daec9}.header-sparkle:after{content:' ❄';font-size:19px;color:#a5c9dc}
 .page-shell{width:min(100% - 36px,980px);margin:0 auto;padding:52px 0 68px}
-.intro{text-align:center;max-width:650px;margin:0 auto 38px}.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;color:#8b7040;margin:0 0 14px}
-h1,h2{font-family:'Playfair Display',Georgia,serif}h1{font-size:clamp(2.7rem,7vw,5rem);line-height:1.02;margin:0;color:#173d5c}h1 em{color:#a64b49;font-weight:600}
+.intro{text-align:center;max-width:650px;margin:0 auto 38px;position:relative}.intro:before,.intro:after{content:'❄';position:absolute;color:#9fc4d8;font-size:2rem;opacity:.8;top:42%;}.intro:before{left:-4%;}.intro:after{right:-4%;}.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;color:#8b7040;margin:0 0 14px}
+h1,h2{font-family:'Playfair Display',Georgia,serif}h1{font-size:clamp(2.7rem,7vw,5rem);line-height:1.02;margin:0;color:#173d5c}h1 em{color:#a64b49;font-weight:600;text-shadow:0 2px 0 #ffffff80}
 .intro-copy{max-width:510px;margin:22px auto 0;font-size:1.08rem;line-height:1.7;color:#526b7d}
 .choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:760px;margin:auto}
-.choice-card{position:relative;min-height:220px;text-align:left;border:1px solid #d4e0e7;border-radius:22px;padding:28px;cursor:pointer;color:white;box-shadow:0 12px 28px #173d5c18;transition:transform .18s,box-shadow .18s;overflow:hidden}
+.choice-card{position:relative;min-height:220px;text-align:left;border:1px solid #ffffffa8;border-radius:22px;padding:28px;cursor:pointer;color:white;box-shadow:0 12px 28px #173d5c20,inset 0 1px 0 #ffffff50;transition:transform .18s,box-shadow .18s;overflow:hidden}.choice-card:after{content:'❄  ✧  ❄';position:absolute;right:22px;top:18px;color:#ffffffa8;font-size:1.15rem;letter-spacing:.35em;pointer-events:none}
 .choice-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px #173d5c25}.choice-card.low{background:linear-gradient(140deg,#286b85,#173e61)}.choice-card.middle{background:linear-gradient(140deg,#a94e4b,#71383d)}
 .choice-number{display:inline-flex;border:1px solid #ffffff80;border-radius:99px;padding:6px 12px;font-size:.82rem}.choice-title{display:block;font-family:'Playfair Display',Georgia,serif;font-size:2rem;margin-top:26px}.choice-desc{display:block;margin-top:5px;color:#ffffffd9}.choice-arrow{position:absolute;right:26px;bottom:24px;font-size:1.8rem}
 .home-note{text-align:center;color:#607889;font-size:.9rem;margin:28px 0 0}
