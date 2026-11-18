@@ -23,7 +23,7 @@
     calendar.hidden = false;
     document.getElementById("calendar-title").textContent = data.title;
     document.getElementById("calendar-description").textContent = data.description;
-    document.getElementById("calendar-eyebrow").textContent = key === "lagstadiet" ? "ÅRSKURS 1–3" : "ÅRSKURS 4–6";
+    document.getElementById("calendar-eyebrow").textContent = key === "lagstadiet" ? "FÖRSKOLEKLASS–ÅRSKURS 3" : "ÅRSKURS 4–6";
     grid.replaceChildren();
     doorOrder.forEach(day => {
       const button = document.createElement("button");
