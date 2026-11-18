@@ -4,6 +4,7 @@
   const grid=document.getElementById("door-grid");
   const dialog=document.getElementById("door-dialog");
   let selectedCalendar="";
+  const testMode=new URLSearchParams(window.location.search).get("test")==="1";
   const positions={14:[42.6,30.6],3:[50,30.6],21:[57.3,30.6],6:[28.1,39.6],18:[36.9,39.6],2:[45.5,39.6],9:[54,39.6],24:[63.1,39.6],11:[71.9,39.6],1:[28.1,49.6],15:[36.9,49.6],8:[63.1,49.6],4:[71.9,49.6],19:[28.1,59.7],7:[36.9,59.7],22:[63.1,59.7],13:[71.9,59.7],17:[28.1,69.6],20:[36.9,69.6],5:[63.1,69.6],12:[71.9,69.6],16:[28.1,79.5],23:[36.9,79.5],10:[63.1,79.5]};
   const STORAGE_KEY="johannas-mattejulkalender-content-v1";
   let customContent={};
@@ -23,14 +24,14 @@
     const data=window.CALENDAR_CONTENT[key];
     home.hidden=true;document.getElementById("editor-view").hidden=true;calendar.hidden=false;
     document.getElementById("calendar-title").textContent=data.title;
-    document.getElementById("calendar-description").textContent=data.description;
+    document.getElementById("calendar-description").textContent=testMode ? data.description+" (Testläge – alla luckor går att öppna.)" : data.description;
     document.getElementById("calendar-eyebrow").textContent=key==="lagstadiet"?"FÖRSKOLEKLASS–ÅRSKURS 3":"ÅRSKURS 4–6";
     grid.replaceChildren();
     Object.keys(positions).forEach(function(n){
       const day=Number(n),p=positions[n],button=document.createElement("button");
       button.className="door";button.type="button";button.style.left=p[0]+"%";button.style.top=p[1]+"%";
       const today=new Date();const start=new Date(today.getFullYear(),today.getMonth(),today.getDate());
-      button.disabled=start<new Date(2026,11,day);
+      button.disabled=!testMode && start<new Date(2026,11,day);
       button.setAttribute("aria-label","Lucka "+day);
       button.addEventListener("click",function(){showDoor(day);});grid.append(button);
     });
