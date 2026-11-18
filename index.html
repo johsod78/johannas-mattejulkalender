@@ -53,6 +53,27 @@
         </div>
       </div>
     </section>
+
+    <section id="editor-view" class="editor-view" hidden>
+      <button class="back-button" id="editor-home">← Till startsidan</button>
+      <div class="calendar-heading">
+        <p class="eyebrow">JOHANNAS VERKTYG</p>
+        <h1>Redigera luckor</h1>
+        <p>Skriv din egen uppgift och lägg till en bild.</p>
+      </div>
+      <div class="editor-panel">
+        <p class="editor-warning"><strong>Viktigt:</strong> Det du sparar här sparas i den här webbläsaren på din dator. Det publiceras inte automatiskt för alla besökare.</p>
+        <label for="edit-calendar">Kalender</label>
+        <select id="edit-calendar"><option value="lagstadiet">F–3</option><option value="mellanstadiet">4–6</option></select>
+        <label for="edit-door">Lucka</label><select id="edit-door"></select>
+        <label for="edit-title">Rubrik</label><input id="edit-title" type="text" placeholder="Skriv en rubrik">
+        <label for="edit-text">Matteuppgift</label><textarea id="edit-text" rows="6" placeholder="Skriv uppgiften här. Gör gärna en ny rad för varje del."></textarea>
+        <label for="edit-image">Bild (valfritt)</label><input id="edit-image" type="file" accept="image/*">
+        <img id="edit-preview" class="edit-preview" alt="Förhandsvisning av uppladdad bild" hidden>
+        <div class="editor-actions"><button id="save-door" class="save-button" type="button">Spara luckan</button><button id="export-content" class="export-button" type="button">Exportera mitt innehåll</button></div>
+        <p id="editor-status" class="editor-status" aria-live="polite"></p>
+      </div>
+    </section>
   </main>
 
   <dialog id="door-dialog" class="door-dialog">
