@@ -3,7 +3,7 @@
   const calendar = document.getElementById("calendar-view");
   const grid = document.getElementById("door-grid");
   const dialog = document.getElementById("door-dialog");
-  let selectedCalendar = null;
+  let selectedCalendar = null;\n  const STORAGE_KEY = "johannas-mattejulkalender-content-v1";\n  let customContent = loadCustomContent();\n\n  function loadCustomContent() {\n    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }\n  }\n  function getDoor(key, day) {\n    return customContent[key]?.[day] || window.CALENDAR_CONTENT[key].doors[day-1];\n  }
 
   // Mittpunkterna för de 24 numrerade cirklarna i julhusbilden.
   const positions = {
@@ -46,12 +46,12 @@
   }
 
   function showDoor(day) {
-    const door = window.CALENDAR_CONTENT[selectedCalendar].doors[day-1];
+    const door = getDoor(selectedCalendar, day);
     document.getElementById("dialog-date").textContent = `LUCKA ${day} • DECEMBER 2026`;
     document.getElementById("dialog-title").textContent = door.title;
     const content = document.getElementById("dialog-content");
     content.replaceChildren();
-    door.paragraphs.forEach(text => {
+    (door.paragraphs || []).forEach(text => {
       const p = document.createElement("p");
       p.textContent = text;
       content.append(p);
