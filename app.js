@@ -40,12 +40,6 @@
       button.style.top = point[1] + "%";
       button.disabled = !isUnlocked(day);
       button.setAttribute("aria-label", button.disabled ? `Lucka ${day}, öppnas ${day} december 2026` : `Öppna lucka ${day}`);
-      if (button.disabled) {
-        const lock = document.createElement("span");
-        lock.className = "lock";
-        lock.textContent = "🔒";
-        button.append(lock);
-      }
       button.addEventListener("click", () => showDoor(day));
       grid.append(button);
     });
