@@ -69,14 +69,40 @@
   editCalendar.addEventListener("change",loadEditorDoor);editDoor.addEventListener("change",loadEditorDoor);
   editImage.addEventListener("change",function(){
     const file=editImage.files&&editImage.files[0];if(!file)return;
-    if(file.size>1500000){document.getElementById("editor-status").textContent="Välj en bild som är mindre än 1,5 MB.";editImage.value="";return;}
-    const reader=new FileReader();reader.onload=function(){pendingImage=String(reader.result);editPreview.src=pendingImage;editPreview.hidden=false;};reader.readAsDataURL(file);
+    const status=document.getElementById("editor-status");
+    if(file.size>1500000){status.textContent="Bilden är större än 1,5 MB. Välj en mindre bild.";editImage.value="";return;}
+    status.textContent="Bearbetar bilden …";
+    const reader=new FileReader();
+    reader.onload=function(){
+      const source=new Image();
+      source.onload=function(){
+        const maxWidth=1000,scale=Math.min(1,maxWidth/source.width);
+        const canvas=document.createElement("canvas");
+        canvas.width=Math.round(source.width*scale);canvas.height=Math.round(source.height*scale);
+        const ctx=canvas.getContext("2d");ctx.drawImage(source,0,0,canvas.width,canvas.height);
+        pendingImage=canvas.toDataURL("image/jpeg",0.68);
+        editPreview.src=pendingImage;editPreview.hidden=false;
+        status.textContent="Bilden är klar. Den har anpassats för att ta mindre plats.";
+      };
+      source.onerror=function(){status.textContent="Bilden kunde inte läsas. Prova en annan bild.";};
+      source.src=String(reader.result);
+    };
+    reader.onerror=function(){status.textContent="Bilden kunde inte läsas. Prova igen.";};
+    reader.readAsDataURL(file);
   });
   document.getElementById("save-door").addEventListener("click",function(){
-    const key=editCalendar.value,day=Number(editDoor.value);if(!customContent[key])customContent[key]={};
-    customContent[key][day]={title:editTitle.value.trim()||"Dagens matteuppdrag",paragraphs:editText.value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean),image:pendingImage};
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(customContent));document.getElementById("editor-status").textContent="Lucka "+day+" sparad på den här datorn.";}
-    catch(e){document.getElementById("editor-status").textContent="Kunde inte spara. Prova en mindre bild.";}
+    const key=editCalendar.value,day=Number(editDoor.value);
+    const previous=customContent[key]&&customContent[key][day];
+    const updated={title:editTitle.value.trim()||"Dagens matteuppdrag",paragraphs:editText.value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean),image:pendingImage};
+    const next=JSON.parse(JSON.stringify(customContent));
+    if(!next[key])next[key]={};next[key][day]=updated;
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
+      customContent=next;
+      document.getElementById("editor-status").textContent="Lucka "+day+" sparad på den här datorn.";
+    }catch(e){
+      document.getElementById("editor-status").textContent="Webbläsarens lagringsutrymme är fullt. Prova en mindre bild eller exportera ditt innehåll som säkerhetskopia.";
+    }
   });
   document.getElementById("export-content").addEventListener("click",function(){
     const blob=new Blob([JSON.stringify(customContent,null,2)],{type:"application/json"});
