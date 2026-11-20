@@ -10,44 +10,64 @@
   let customContent={};
   function openContentDB(){
     return new Promise(function(resolve,reject){
-      const request=indexedDB.open("JohannasMattejulkalender",1);
-      request.onupgradeneeded=function(){request.result.createObjectStore("drafts");};
+      if(!window.indexedDB){reject(new Error("IndexedDB stöds inte i webbläsaren."));return;}
+      const request=window.indexedDB.open("JohannasMattejulkalender",2);
+      request.onupgradeneeded=function(){
+        const db=request.result;
+        if(!db.objectStoreNames.contains("drafts"))db.createObjectStore("drafts");
+        if(!db.objectStoreNames.contains("doors"))db.createObjectStore("doors",{keyPath:"id"});
+      };
       request.onsuccess=function(){resolve(request.result);};
-      request.onerror=function(){reject(request.error);};
+      request.onerror=function(){reject(request.error||new Error("Kunde inte öppna webbläsarens databas."));};
+      request.onblocked=function(){reject(new Error("Databasen är upptagen. Stäng andra kalenderflikar och försök igen."));};
     });
   }
   async function readSavedContent(){
+    const db=await openContentDB();
     try{
-      const db=await openContentDB();
-      const value=await new Promise(function(resolve,reject){
-        const tx=db.transaction("drafts","readonly");
-        const req=tx.objectStore("drafts").get("content");
-        req.onsuccess=function(){resolve(req.result||null);};
+      const records=await new Promise(function(resolve,reject){
+        const tx=db.transaction("doors","readonly");
+        const req=tx.objectStore("doors").getAll();
+        req.onsuccess=function(){resolve(req.result||[]);};
         req.onerror=function(){reject(req.error);};
       });
-      if(value){customContent=value;db.close();return;}
-      const old=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
-      if(Object.keys(old).length){
-        await writeSavedContent(old);
+      records.forEach(function(record){
+        if(!customContent[record.calendar])customContent[record.calendar]={};
+        customContent[record.calendar][record.day]=record.door;
+      });
+      // Importa äldre utkast som tidigare sparades i localStorage.
+      try{
+        const old=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+        for(const key of Object.keys(old)){
+          for(const day of Object.keys(old[key]||{})){
+            if(!customContent[key])customContent[key]={};
+            if(!customContent[key][day]){
+              customContent[key][day]=old[key][day];
+              await writeSavedDoor(db,key,Number(day),old[key][day]);
+            }
+          }
+        }
         localStorage.removeItem(STORAGE_KEY);
-        customContent=old;
-      }
-      db.close();
-    }catch(e){
-      try{customContent=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");}catch(ignore){}
-    }
+      }catch(ignore){}
+    }finally{db.close();}
   }
-  async function writeSavedContent(value){
-    const db=await openContentDB();
-    await new Promise(function(resolve,reject){
-      const tx=db.transaction("drafts","readwrite");
-      tx.objectStore("drafts").put(value,"content");
-      tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error);};
-      tx.onabort=function(){reject(tx.error);};
+  function writeSavedDoor(db,key,day,door){
+    return new Promise(function(resolve,reject){
+      const tx=db.transaction("doors","readwrite");
+      tx.objectStore("doors").put({id:key+"-"+day,calendar:key,day:day,door:door});
+      tx.oncomplete=resolve;
+      tx.onerror=function(){reject(tx.error||new Error("Databasen kunde inte spara luckan."));};
+      tx.onabort=function(){reject(tx.error||new Error("Sparningen avbröts."));};
     });
-    db.close();
   }
-  const storageReady=readSavedContent();
+  async function saveDoorToDB(key,day,door){
+    const db=await openContentDB();
+    try{await writeSavedDoor(db,key,day,door);}finally{db.close();}
+  }
+  const storageReady=readSavedContent().catch(function(error){
+    window.calendarStorageError=error;
+    console.error("Kalenderlagring:",error);
+  });
   function getDoor(key,day){return (customContent[key]&&customContent[key][day])||window.CALENDAR_CONTENT[key].doors[day-1];}
   function showDoor(day){
     const door=getDoor(selectedCalendar,day);
@@ -115,11 +135,11 @@
     reader.onload=function(){
       const source=new Image();
       source.onload=function(){
-        const maxWidth=1000,scale=Math.min(1,maxWidth/source.width);
+        const maxWidth=700,scale=Math.min(1,maxWidth/source.width);
         const canvas=document.createElement("canvas");
         canvas.width=Math.round(source.width*scale);canvas.height=Math.round(source.height*scale);
         const ctx=canvas.getContext("2d");ctx.drawImage(source,0,0,canvas.width,canvas.height);
-        pendingImage=canvas.toDataURL("image/jpeg",0.68);
+        pendingImage=canvas.toDataURL("image/jpeg",0.48);
         editPreview.src=pendingImage;editPreview.hidden=false;
         status.textContent="Bilden är klar. Den har anpassats för att ta mindre plats.";
       };
@@ -129,21 +149,20 @@
     reader.onerror=function(){status.textContent="Bilden kunde inte läsas. Prova igen.";};
     reader.readAsDataURL(file);
   });
-  document.getElementById("save-door").addEventListener("click",function(){
+  document.getElementById("save-door").addEventListener("click",async function(){
     const key=editCalendar.value,day=Number(editDoor.value);
-    const previous=customContent[key]&&customContent[key][day];
     const updated={title:editTitle.value.trim()||"Dagens matteuppdrag",paragraphs:editText.value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean),image:pendingImage};
-    const next=JSON.parse(JSON.stringify(customContent));
-    if(!next[key])next[key]={};next[key][day]=updated;
     const status=document.getElementById("editor-status");
-    status.textContent="Sparar …";
-    writeSavedContent(next).then(function(){
-      customContent=next;
-      try{localStorage.removeItem(STORAGE_KEY);}catch(ignore){}
+    status.textContent="Sparar lucka "+day+" …";
+    try{
+      await saveDoorToDB(key,day,updated);
+      if(!customContent[key])customContent[key]={};
+      customContent[key][day]=updated;
       status.textContent="Lucka "+day+" sparad på den här datorn.";
-    }).catch(function(){
-      status.textContent="Det gick inte att spara i webbläsaren. Exportera ditt innehåll som säkerhetskopia.";
-    });
+    }catch(error){
+      console.error("Kunde inte spara luckan:",error);
+      status.textContent="Sparningen misslyckades: "+(error&&error.message?error.message:"okänt fel")+". Prova att öppna kalendern i Chrome eller exportera innehållet.";
+    }
   });
   document.getElementById("export-content").addEventListener("click",function(){
     const blob=new Blob([JSON.stringify(customContent,null,2)],{type:"application/json"});
